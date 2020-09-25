@@ -7,10 +7,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from 'react-native-responsive-screen';
+import {styles} from './DetailsScreenStyles';
 
 class DetailsScreen extends Component {
   constructor(props) {
@@ -105,28 +102,5 @@ class DetailsScreen extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  textCommon: {
-    fontSize: hp('1.8%'),
-    marginVertical: hp('0.5%'),
-  },
-  TitleMain: {
-    fontSize: hp('3%'),
-    alignSelf: 'center',
-    fontWeight: 'bold',
-    marginVertical: hp('0.5%'),
-  },
-  fieldContainer: {
-    padding: hp('2%'),
-    marginVertical: hp('2%'),
-    backgroundColor: 'white',
-    elevation: 5,
-    borderRadius: hp('2%'),
-    width: '100%',
-  },
-  container: {flex: 1, justifyContent: 'center', alignItems: 'center'},
-  sub: {flex: 1, margin: hp('2%')},
-});
 
 export default DetailsScreen;

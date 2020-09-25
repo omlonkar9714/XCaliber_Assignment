@@ -6,14 +6,17 @@ import {
   TextInput,
   TouchableOpacity,
   ToastAndroid,
+  Image,
 } from 'react-native';
 import {COLORS} from '../../constants/COLORS';
 import AsyncStorage from '@react-native-community/async-storage';
+import {styles} from './LoginStyles';
 
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
+import {Images} from '../../assets/Images';
 
 class Login extends Component {
   constructor(props) {
@@ -50,6 +53,8 @@ class Login extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <Image style={styles.logo} source={Images.logo}></Image>
+
         <View style={styles.cardStyle}>
           <View style={styles.loginHeaderContainer}>
             <Text style={styles.headerText}>Login</Text>
@@ -85,43 +90,43 @@ class Login extends Component {
   }
 }
 
-const styles = StyleSheet.create({
-  headerText: {fontSize: hp('3%'), fontWeight: 'bold'},
-  loginHeaderContainer: {
-    marginVertical: hp('1%'),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loginbtnView: {
-    padding: hp('1%'),
-    marginTop: hp('2%'),
-    borderRadius: hp('1%'),
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'black',
-  },
-  loginbtnText: {color: 'white', fontSize: hp('2%')},
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.faintGrey,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  TextInput: {fontSize: hp('1.8%')},
-  textInputContainer: {
-    marginVertical: hp('1%'),
-    borderWidth: hp('0.1%'),
-    borderRadius: hp('1%'),
-    paddingLeft: hp('2%'),
-  },
-  cardStyle: {
-    width: wp('80%'),
-    borderRadius: hp('2%'),
-    padding: hp('2%'),
-    borderColor: COLORS.black,
-    borderWidth: hp('0.2%'),
-  },
-});
+// const styles = StyleSheet.create({
+//   headerText: {fontSize: hp('3%'), fontWeight: 'bold'},
+//   loginHeaderContainer: {
+//     marginVertical: hp('1%'),
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   loginbtnView: {
+//     padding: hp('1%'),
+//     marginTop: hp('2%'),
+//     borderRadius: hp('1%'),
+//     width: '100%',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     backgroundColor: 'black',
+//   },
+//   loginbtnText: {color: 'white', fontSize: hp('2%')},
+//   container: {
+//     flex: 1,
+//     backgroundColor: COLORS.faintGrey,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   TextInput: {fontSize: hp('1.8%')},
+//   textInputContainer: {
+//     marginVertical: hp('1%'),
+//     borderWidth: hp('0.1%'),
+//     borderRadius: hp('1%'),
+//     paddingLeft: hp('2%'),
+//   },
+//   cardStyle: {
+//     width: wp('80%'),
+//     borderRadius: hp('2%'),
+//     padding: hp('2%'),
+//     borderColor: COLORS.black,
+//     borderWidth: hp('0.2%'),
+//   },
+// });
 
 export default Login;
