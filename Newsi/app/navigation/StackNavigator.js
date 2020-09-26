@@ -10,47 +10,47 @@ import WebShow from '../screens/WebViewScreen/WebviewScreen';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import SplashScreen from 'react-native-splash-screen';
+import {connect} from 'react-redux';
 
 const Stack = createStackNavigator();
 
 class StackNavigator extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      loggedin: false,
-      isLoding: true,
-    };
+    this.state = {};
   }
 
   componentDidMount = async () => {
     SplashScreen.hide();
-    const username = await AsyncStorage.getItem('username');
-    if (username != null) {
-      console.log('user ' + username);
-      // ToastAndroid.show(username + 'is already signed in!', ToastAndroid.SHORT);
-      this.setState({loggedin: true}, () => this.setState({isLoding: false}));
-    } else {
-      console.log('user new');
-      this.setState({loggedin: false}, () => this.setState({isLoding: false}));
-    }
   };
 
   render() {
-    if (this.state.isLoding) {
-      return <ActivityIndicator></ActivityIndicator>;
-    } else {
-      return (
-        <Stack.Navigator
-          initialRouteName={this.state.loggedin == true ? 'Home' : 'Login'}
-          headerMode="none">
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="Details" component={Details} />
-          <Stack.Screen name="WebShow" component={WebShow} />
-        </Stack.Navigator>
-      );
-    }
+    return (
+      <Stack.Navigator
+        initialRouteName={this.props.user_name.length > 0 ? 'Home' : 'Login'}
+        headerMode="none">
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Details" component={Details} />
+        <Stack.Screen name="WebShow" component={WebShow} />
+      </Stack.Navigator>
+    );
   }
 }
 
-export default StackNavigator;
+const mapStateToProps = (state) => {
+  console.log(JSON.stringify(state));
+  return {
+    user_name: state.userReducer.user_name,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    // getData: () => {
+    //   dispatch(getData());
+    // },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(StackNavigator);

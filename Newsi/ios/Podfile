@@ -10,6 +10,8 @@ target 'Newsi' do
 
   pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
 
+  pod 'react-native-fbsdk', :path => '../node_modules/react-native-fbsdk'
+
   target 'NewsiTests' do
     inherit! :complete
     # Pods for testing

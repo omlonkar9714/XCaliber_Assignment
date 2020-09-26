@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Newsi</string>
+    <string name="facebook_app_id">658067445142323</string>
+<string name="fb_login_protocol_scheme">fb658067445142323</string>
 </resources>

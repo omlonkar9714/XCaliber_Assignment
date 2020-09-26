@@ -17,25 +17,31 @@ import {
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 import {Images} from '../../assets/Images';
+import {
+  LoginButton,
+  AccessToken,
+  GraphRequest,
+  GraphRequestManager,
+} from 'react-native-fbsdk';
+import {connect} from 'react-redux';
+import {saveuser} from '../../redux/Actions/User/UserActions';
 
 class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
       password: '',
+      user_name: '',
+      token: '',
+      profile_pic: '',
     };
   }
 
   onPressLoginButton = async () => {
     if (this.state.username != '' && this.state.password != '') {
-      await AsyncStorage.setItem('username', this.state.username);
-      const username = await AsyncStorage.getItem('username');
-      if (username) {
-        this.props.navigation.navigate('Home');
-      } else {
-        this.verifyInput();
-      }
+      let data = {user_name: this.state.user_name, profile_pic: '', from: 1};
+      this.props.saveUser(data);
+      this.props.navigation.navigate('Home');
     } else {
       this.verifyInput();
     }
@@ -50,10 +56,41 @@ class Login extends Component {
     }
   };
 
+  onLogout = () => {
+    //Clear the state after logout
+    this.setState({user_name: null, token: null, profile_pic: null});
+  };
+
+  get_Response_Info = (error, result) => {
+    if (error) {
+      //Alert for the Error
+      Alert.alert('Error fetching data: ' + error.toString());
+    } else {
+      //response alert
+      // alert(JSON.stringify(result));
+      console.log(JSON.stringify(result));
+      // this.setState({user_name: 'Welcome' + ' ' + result.name});
+      // this.setState({token: 'User Token: ' + ' ' + result.id});
+      // this.setState({profile_pic: result.picture.data.url});
+
+      let data = {
+        user_name: result.name,
+        profile_pic: result.picture.data.url,
+        from: 2,
+      };
+      this.props.saveUser(data);
+      this.props.navigation.navigate('Home');
+    }
+  };
+
   render() {
     return (
       <View style={styles.container}>
         <Image style={styles.logo} source={Images.logo}></Image>
+
+        {this.state.profile_pic ? (
+          <Image source={{uri: this.state.profile_pic}} style={styles.logo} />
+        ) : null}
 
         <View style={styles.cardStyle}>
           <View style={styles.loginHeaderContainer}>
@@ -63,7 +100,7 @@ class Login extends Component {
             <TextInput
               style={styles.TextInput}
               onChangeText={(text) => {
-                this.setState({username: text});
+                this.setState({user_name: text});
               }}
               placeholder="Enter username"></TextInput>
           </View>
@@ -84,49 +121,55 @@ class Login extends Component {
               <Text style={styles.loginbtnText}>Login</Text>
             </View>
           </TouchableOpacity>
+          {this.props.user_name.length == 0 && (
+            <LoginButton
+              style={styles.fblogin}
+              readPermissions={['public_profile']}
+              onLogoutFinished={this.onLogout}
+              onLoginFinished={(error, result) => {
+                if (error) {
+                  console.log(error);
+                  console.log('login has error: ' + result.error);
+                  ToastAndroid.show('Something went wrong', ToastAndroid.SHORT);
+                } else if (result.isCancelled) {
+                  // alert('login is cancelled.');
+                  ToastAndroid.show('Login is cancelled.', ToastAndroid.SHORT);
+                } else {
+                  AccessToken.getCurrentAccessToken().then((data) => {
+                    // alert(data.accessToken.toString());
+                    console.log(data.accessToken.toString());
+                    const processRequest = new GraphRequest(
+                      '/me?fields=name,picture.type(large)',
+                      null,
+                      this.get_Response_Info,
+                    );
+                    // Start the graph request.
+                    new GraphRequestManager()
+                      .addRequest(processRequest)
+                      .start();
+                  });
+                }
+              }}></LoginButton>
+          )}
         </View>
       </View>
     );
   }
 }
 
-// const styles = StyleSheet.create({
-//   headerText: {fontSize: hp('3%'), fontWeight: 'bold'},
-//   loginHeaderContainer: {
-//     marginVertical: hp('1%'),
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   loginbtnView: {
-//     padding: hp('1%'),
-//     marginTop: hp('2%'),
-//     borderRadius: hp('1%'),
-//     width: '100%',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: 'black',
-//   },
-//   loginbtnText: {color: 'white', fontSize: hp('2%')},
-//   container: {
-//     flex: 1,
-//     backgroundColor: COLORS.faintGrey,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   TextInput: {fontSize: hp('1.8%')},
-//   textInputContainer: {
-//     marginVertical: hp('1%'),
-//     borderWidth: hp('0.1%'),
-//     borderRadius: hp('1%'),
-//     paddingLeft: hp('2%'),
-//   },
-//   cardStyle: {
-//     width: wp('80%'),
-//     borderRadius: hp('2%'),
-//     padding: hp('2%'),
-//     borderColor: COLORS.black,
-//     borderWidth: hp('0.2%'),
-//   },
-// });
+const mapStateToProps = (state) => {
+  console.log(JSON.stringify(state));
+  return {
+    user_name: state.userReducer.user_name,
+  };
+};
 
-export default Login;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    saveUser: (data) => {
+      dispatch(saveuser(data));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

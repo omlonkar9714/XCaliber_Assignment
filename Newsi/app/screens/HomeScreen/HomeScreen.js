@@ -18,14 +18,16 @@ import {Images} from '../../assets/Images';
 import {URLS} from '../../constants/URLFILE';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {styles} from './HomeScreenStyles';
+import {LoginButton} from 'react-native-fbsdk';
+import {connect} from 'react-redux';
+import {deleteuser} from '../../redux/Actions/User/UserActions';
 
 class HomeScreen extends Component {
   constructor(props) {
     super(props);
     this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
     this.state = {
-      username: '',
-      searchText: '',
+      searchText: 'welcome',
       loadingForEmpty: false,
       isLoading: false,
       loadingFooter: false,
@@ -122,7 +124,7 @@ class HomeScreen extends Component {
   };
 
   onPressLogoutButton = () => {
-    AsyncStorage.removeItem('username');
+    this.props.deleteUser();
     this.props.navigation.navigate('Login');
   };
 
@@ -162,10 +164,6 @@ class HomeScreen extends Component {
   };
 
   componentDidMount = async () => {
-    const username = await AsyncStorage.getItem('username');
-    if (username) {
-      this.setState({username});
-    }
     this.getInitialData();
   };
 
@@ -173,23 +171,44 @@ class HomeScreen extends Component {
     this.props.navigation.navigate('Details', {item: item});
   };
 
+  onLogout = () => {
+    //Clear the state after logout
+    this.props.deleteUser();
+    this.onPressLogoutButton();
+  };
+
   render() {
     return (
       <View style={styles.container}>
         <View>
+          {/* <LoginButton></LoginButton> */}
           <View style={[styles.sub]}>
             <View style={{flexDirection: 'row'}}>
-              <Image style={styles.imageStyle} source={Images.user}></Image>
+              {this.props.profile_pic.length == 0 && (
+                <Image style={styles.imageStyle} source={Images.user}></Image>
+              )}
+
+              {this.props.profile_pic.length > 0 && (
+                <Image
+                  style={styles.imageStyle}
+                  source={{uri: this.props.profile_pic}}></Image>
+              )}
+
               <View style={{justifyContent: 'center', alignSelf: 'center'}}>
-                <Text style={styles.username}>{this.state.username}</Text>
+                <Text style={styles.username}>{this.props.user_name}</Text>
               </View>
             </View>
-            <TouchableOpacity
-              onPress={() => {
-                this.onPressLogoutButton();
-              }}>
-              <Image style={styles.imageStyle} source={Images.logout}></Image>
-            </TouchableOpacity>
+            {this.props.logincode == 1 && (
+              <TouchableOpacity
+                onPress={() => {
+                  this.onPressLogoutButton();
+                }}>
+                <Image style={styles.imageStyle} source={Images.logout}></Image>
+              </TouchableOpacity>
+            )}
+            {this.props.logincode == 2 && (
+              <LoginButton onLogoutFinished={this.onLogout}></LoginButton>
+            )}
           </View>
           <View style={styles.textInputContainer}>
             <TextInput
@@ -203,12 +222,10 @@ class HomeScreen extends Component {
           </View>
         </View>
 
-        {this.state.searchText != '' && (
-          <Text style={styles.simpleTxt}>
-            Showing {this.state.data.length} search results for{' '}
-            <Text style={{fontWeight: 'bold'}}>{this.state.searchText}</Text>
-          </Text>
-        )}
+        <Text style={styles.simpleTxt}>
+          Showing {this.state.data.length} search results for{' '}
+          <Text style={{fontWeight: 'bold'}}>{this.state.searchText}</Text>
+        </Text>
 
         {this.state.data.length > 0 && (
           <FlatList
@@ -255,4 +272,21 @@ class HomeScreen extends Component {
   }
 }
 
-export default HomeScreen;
+const mapStateToProps = (state) => {
+  console.log(JSON.stringify(state));
+  return {
+    user_name: state.userReducer.user_name,
+    profile_pic: state.userReducer.profile_pic,
+    logincode: state.userReducer.from,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    deleteUser: () => {
+      dispatch(deleteuser());
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

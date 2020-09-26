@@ -6,6 +6,7 @@ import {
 import {COLORS} from '../../constants/COLORS';
 
 export const styles = StyleSheet.create({
+  fblogin: {height: hp('4%'), width: '100%', marginVertical: 30},
   logo: {
     height: hp('10%'),
     width: hp('10%'),
