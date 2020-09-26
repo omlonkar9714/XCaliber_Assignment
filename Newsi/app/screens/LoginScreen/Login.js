@@ -23,8 +23,34 @@ import {
   GraphRequest,
   GraphRequestManager,
 } from 'react-native-fbsdk';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from 'react-native-google-signin';
+
 import {connect} from 'react-redux';
 import {saveuser} from '../../redux/Actions/User/UserActions';
+
+const data = {
+  idToken:
+    'eyJhbGciOiJSUzI1NiIsImtpZCI6IjJjNmZhNmY1OTUwYTdjZTQ2NWZjZjI0N2FhMGIwOTQ4MjhhYzk1MmMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxODQwNjE5ODc3NzAtaXFsc2Y0MnZrM21zdDVram1mbzI5Nmd1azh2YWUzc20uYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIxODQwNjE5ODc3NzAtN3A0NjlpbmVlYXBzdjBvNzl2bW1sb3VldnM1cmtrbmkuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDY2Nzg3MzIzODQzMTQ2NTcyMjEiLCJlbWFpbCI6Im9ta2FybG9ua2FyNzU5NzE0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiT21rYXIgTG9ua2FyIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BT2gxNEdqc0xrMG1EYXdDZjFRb3g3R2trcUpMVjIzc01HS01lQ1ZVQUp5cD1zOTYtYyIsImdpdmVuX25hbWUiOiJPbWthciIsImZhbWlseV9uYW1lIjoiTG9ua2FyIiwibG9jYWxlIjoiZW4iLCJpYXQiOjE2MDExMjQyMDUsImV4cCI6MTYwMTEyNzgwNX0.WxdOacn6bCuTt98gritfDfNQ4DRLuKre2np2TMScsO2PQAMC8hhKAQwZt6dLG2vxgKGc1H9Odx2z-JlD0hVVonCVoEqxZXUOuFEDSKU1vJ-sY7hXBR91mF6USa5AyqEwErDTxBkzN32lyYldQ1pWW9i6fAPYxqI3Hbd7Zo48hyKHaSXKjuwhmX5d3DTDfqMecnRiTTaw69OvklSroKO_gcXi8mp1E52a8N_shG8szQrFr7aapyroG5L6R7UUh2VL2MP59_6Dr-SP4_UdUSJvNztP-oM6pEqfs5LqblU0CECMwvvC4WVltgwE5ByzsrPS5rlECFvVkNZ_ronhKEnwyQ',
+  scopes: [
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/drive.readonly',
+  ],
+  serverAuthCode: null,
+  user: {
+    email: 'omkarlonkar759714@gmail.com',
+    familyName: 'Lonkar',
+    givenName: 'Omkar',
+    id: '106678732384314657221',
+    name: 'Omkar Lonkar',
+    photo:
+      'https://lh3.googleusercontent.com/a-/AOh14GjsLk0mDawCf1Qox7GkkqJLV23sMGKMeCVUAJyp=s96-c',
+  },
+};
 
 class Login extends Component {
   constructor(props) {
@@ -80,6 +106,59 @@ class Login extends Component {
       };
       this.props.saveUser(data);
       this.props.navigation.navigate('Home');
+    }
+  };
+
+  componentDidMount() {
+    //initial configuration
+    GoogleSignin.configure({
+      //It is mandatory to call this method before attempting to call signIn()
+      scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+      // Repleace with your webClientId generated from Firebase console
+      webClientId:
+        '184061987770-7p469ineeapsv0o79vmmlouevs5rkkni.apps.googleusercontent.com',
+    });
+  }
+
+  _signIn = async () => {
+    //Prompts a modal to let the user sign in into your application.
+    try {
+      await GoogleSignin.hasPlayServices({
+        //Check if device has Google Play Services installed.
+        //Always resolves to true on iOS.
+        showPlayServicesUpdateDialog: true,
+      });
+      const userInfo = await GoogleSignin.signIn();
+      console.log('User Info --> ', userInfo);
+      let data = {
+        user_name: userInfo.user.name,
+        profile_pic: userInfo.user.photo,
+        from: 3,
+      };
+      this.props.saveUser(data);
+      this.props.navigation.navigate('Home');
+    } catch (error) {
+      console.log('Message', error.message);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.log('User Cancelled the Login Flow');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.log('Signing In');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.log('Play Services Not Available or Outdated');
+      } else {
+        console.log('Some Other Error Happened');
+      }
+    }
+  };
+
+  _signOut = async () => {
+    //Remove user session from the device.
+    try {
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+      this.setState({userInfo: null}); // Remove the user from your app's state as well
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -150,6 +229,15 @@ class Login extends Component {
                   });
                 }
               }}></LoginButton>
+          )}
+
+          {this.props.user_name.length == 0 && (
+            <GoogleSigninButton
+              style={{width: 312, height: 48}}
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Light}
+              onPress={this._signIn}
+            />
           )}
         </View>
       </View>

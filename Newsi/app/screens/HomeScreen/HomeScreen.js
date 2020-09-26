@@ -21,6 +21,11 @@ import {styles} from './HomeScreenStyles';
 import {LoginButton} from 'react-native-fbsdk';
 import {connect} from 'react-redux';
 import {deleteuser} from '../../redux/Actions/User/UserActions';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from 'react-native-google-signin';
 
 class HomeScreen extends Component {
   constructor(props) {
@@ -177,6 +182,18 @@ class HomeScreen extends Component {
     this.onPressLogoutButton();
   };
 
+  _signOut = async () => {
+    //Remove user session from the device.
+    try {
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+      this.props.deleteUser();
+      this.props.navigation.navigate('Login');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -198,14 +215,21 @@ class HomeScreen extends Component {
                 <Text style={styles.username}>{this.props.user_name}</Text>
               </View>
             </View>
-            {this.props.logincode == 1 && (
-              <TouchableOpacity
-                onPress={() => {
-                  this.onPressLogoutButton();
-                }}>
-                <Image style={styles.imageStyle} source={Images.logout}></Image>
-              </TouchableOpacity>
-            )}
+            {this.props.logincode == 1 ||
+              (this.props.logincode == 3 && (
+                <TouchableOpacity
+                  onPress={() => {
+                    if (this.props.logincode == 1) {
+                      this.onPressLogoutButton();
+                    } else if (this.props.logincode == 3) {
+                      this._signOut();
+                    }
+                  }}>
+                  <Image
+                    style={styles.imageStyle}
+                    source={Images.logout}></Image>
+                </TouchableOpacity>
+              ))}
             {this.props.logincode == 2 && (
               <LoginButton onLogoutFinished={this.onLogout}></LoginButton>
             )}
