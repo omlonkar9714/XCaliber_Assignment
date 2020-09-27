@@ -3,7 +3,7 @@ import {View, Text, ToastAndroid, ActivityIndicator} from 'react-native';
 
 import {createStackNavigator} from '@react-navigation/stack';
 
-import Home from '../screens/HomeScreen/HomeScreen';
+import Home from '../screens/HomeScreen/HomeScreen2';
 import Login from '../screens/LoginScreen/Login';
 import Details from '../screens/DetailsScreen/DetailsScreen';
 import WebShow from '../screens/WebViewScreen/WebviewScreen';

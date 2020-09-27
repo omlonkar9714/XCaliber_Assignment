@@ -26,6 +26,8 @@ import {
   GoogleSigninButton,
   statusCodes,
 } from 'react-native-google-signin';
+import {fetchData} from '../../redux/Reducers/SearchData/SearchReducer';
+import {clearData} from '../../redux/Actions/SearchApi/SearchApiActions';
 
 class HomeScreen extends Component {
   constructor(props) {
@@ -33,47 +35,7 @@ class HomeScreen extends Component {
     this.handleBackButtonClick = this.handleBackButtonClick.bind(this);
     this.state = {
       searchText: 'welcome',
-      loadingForEmpty: false,
-      isLoading: false,
-      loadingFooter: false,
       pageNumber: 1,
-      data: [],
-      items: [
-        {
-          essay: [],
-          place_of_publication: 'Newark, Ohio',
-          start_year: 1892,
-          publisher: 'Advocate Print. Co.',
-          county: ['Licking'],
-          edition: null,
-          frequency: 'Daily',
-          url: 'https://chroniclingamerica.loc.gov/lccn/sn88078778.json',
-          id: '/lccn/sn88078778/',
-          subject: [
-            'Licking County (Ohio)--Newspapers.',
-            'Newark (Ohio)--Newspapers.',
-            'Ohio--Licking County.--fast--(OCoLC)fst01207827',
-            'Ohio--Newark.--fast--(OCoLC)fst01207972',
-          ],
-          city: ['Newark'],
-          language: ['English'],
-          title: 'The Daily advocate.',
-          holding_type: ['Microfilm Master', 'Microfilm Service Copy'],
-          end_year: 1894,
-          alt_title: ['Sunday advocate'],
-          note: [
-            'Description based on: Vol. 33, no. 39 (Nov. 19, 1892).',
-            'On Sundays published as: Sunday advocate, Sept. 3, 1893-Jan. 22, 1894.',
-          ],
-          lccn: 'sn88078778',
-          state: ['Ohio'],
-          place: ['Ohio--Licking--Newark'],
-          country: 'Ohio',
-          type: 'title',
-          title_normal: 'daily advocate.',
-          oclc: '18390979',
-        },
-      ],
     };
   }
 
@@ -96,62 +58,28 @@ class HomeScreen extends Component {
     return true;
   }
 
-  getInitialData = async () => {
-    this.setState({isLoading: true, loadingForEmpty: true});
-    console.log(
-      'URL \n' +
-        URLS.baseURL +
-        URLS.Loadpart1 +
-        this.state.searchText +
-        URLS.Loadpart2 +
-        this.state.pageNumber,
-    );
-    let response = await fetch(
-      URLS.baseURL +
-        URLS.Loadpart1 +
-        this.state.searchText +
-        URLS.Loadpart2 +
-        this.state.pageNumber,
-      {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        // body: datainfo,
-      },
-    );
-    let result = await response.json();
-    console.log('RES \n' + JSON.stringify(result.items.length));
-    this.setState({data: this.state.data.concat(result.items)}, () =>
-      this.setState({isLoading: false, loadingForEmpty: false}),
-    );
-  };
-
   onPressLogoutButton = () => {
+    this.props.clearData();
     this.props.deleteUser();
     this.props.navigation.navigate('Login');
   };
 
   loadData = () => {
-    this.setState({data: [], pageNumber: 1}, () => {
+    this.setState({pageNumber: 1}, () => {
       if (this.state.searchText.length > 0) {
-        this.getInitialData();
+        this.props.fetchData(this.state.searchText, this.state.pageNumber, 1);
       }
     });
   };
 
   onEndReachedFlatList = () => {
-    this.setState({isLoading: true});
-    setTimeout(() => {
-      this.setState({pageNumber: this.state.pageNumber + 1}, () => {
-        this.getInitialData();
-      });
-    }, 3000);
+    this.setState({pageNumber: this.state.pageNumber + 1}, () => {
+      this.props.fetchData(this.state.searchText, this.state.pageNumber, 2);
+    });
   };
 
   renderFooterList = () => {
-    if (this.state.isLoading) {
+    if (this.props.loading) {
       return (
         <View
           style={{
@@ -163,13 +91,13 @@ class HomeScreen extends Component {
           <ActivityIndicator size="small" color="black"></ActivityIndicator>
         </View>
       );
-    } else if (this.state.isLoading == false) {
+    } else if (this.props.loading == false) {
       return null;
     }
   };
 
   componentDidMount = async () => {
-    this.getInitialData();
+    this.props.fetchData(this.state.searchText, '1', 1);
   };
 
   onItemPress = (item) => {
@@ -178,12 +106,14 @@ class HomeScreen extends Component {
 
   onLogout = () => {
     //Clear the state after logout
+    this.props.clearData();
     this.props.deleteUser();
     this.onPressLogoutButton();
   };
 
   _signOut = async () => {
     //Remove user session from the device.
+    this.props.clearData();
     try {
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
@@ -215,21 +145,18 @@ class HomeScreen extends Component {
                 <Text style={styles.username}>{this.props.user_name}</Text>
               </View>
             </View>
-            {this.props.logincode == 1 ||
-              (this.props.logincode == 3 && (
-                <TouchableOpacity
-                  onPress={() => {
-                    if (this.props.logincode == 1) {
-                      this.onPressLogoutButton();
-                    } else if (this.props.logincode == 3) {
-                      this._signOut();
-                    }
-                  }}>
-                  <Image
-                    style={styles.imageStyle}
-                    source={Images.logout}></Image>
-                </TouchableOpacity>
-              ))}
+            {(this.props.logincode == 1 || this.props.logincode == 3) && (
+              <TouchableOpacity
+                onPress={() => {
+                  if (this.props.logincode == 1) {
+                    this.onPressLogoutButton();
+                  } else if (this.props.logincode == 3) {
+                    this._signOut();
+                  }
+                }}>
+                <Image style={styles.imageStyle} source={Images.logout}></Image>
+              </TouchableOpacity>
+            )}
             {this.props.logincode == 2 && (
               <LoginButton onLogoutFinished={this.onLogout}></LoginButton>
             )}
@@ -247,11 +174,11 @@ class HomeScreen extends Component {
         </View>
 
         <Text style={styles.simpleTxt}>
-          Showing {this.state.data.length} search results for{' '}
+          Showing {this.props.fetchedData.length} search results for{' '}
           <Text style={{fontWeight: 'bold'}}>{this.state.searchText}</Text>
         </Text>
 
-        {this.state.data.length > 0 && (
+        {this.props.fetchedData.length > 0 && (
           <FlatList
             showsVerticalScrollIndicator={false}
             initialNumToRender={10}
@@ -267,7 +194,7 @@ class HomeScreen extends Component {
                 this.onEndReachedCalledDuringMomentum = true;
               }
             }}
-            data={this.state.data}
+            data={this.props.fetchedData}
             renderItem={({item}) => (
               <TouchableOpacity
                 onPress={() => {
@@ -286,7 +213,7 @@ class HomeScreen extends Component {
               </TouchableOpacity>
             )}></FlatList>
         )}
-        {this.state.data.length == 0 && this.state.loadingForEmpty == true && (
+        {this.props.fetchedData.length == 0 && this.props.loading == true && (
           <View style={styles.activity}>
             <ActivityIndicator size="small" color="black"></ActivityIndicator>
           </View>
@@ -297,11 +224,16 @@ class HomeScreen extends Component {
 }
 
 const mapStateToProps = (state) => {
-  console.log(JSON.stringify(state));
+  console.log(
+    'STATE \n \n \n \n ' + JSON.stringify(state.searchReducer.fetchedData),
+  );
+
   return {
     user_name: state.userReducer.user_name,
     profile_pic: state.userReducer.profile_pic,
     logincode: state.userReducer.from,
+    fetchedData: state.searchReducer.fetchedData,
+    loading: state.searchReducer.loading,
   };
 };
 
@@ -309,6 +241,12 @@ const mapDispatchToProps = (dispatch) => {
   return {
     deleteUser: () => {
       dispatch(deleteuser());
+    },
+    fetchData: (searchText, pageNumber, addcode) => {
+      dispatch(fetchData(searchText, pageNumber, addcode));
+    },
+    clearData: () => {
+      dispatch(clearData());
     },
   };
 };
