@@ -3,7 +3,8 @@
 XCaliber assignment
 
 App details as per requirement - 
- 
+
+*Note - For android side of application(Windows system used.).
 
 1.Application logo
 --
