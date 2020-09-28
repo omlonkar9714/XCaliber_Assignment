@@ -27,7 +27,10 @@ import {
   statusCodes,
 } from 'react-native-google-signin';
 import {fetchData} from '../../redux/Reducers/SearchData/SearchReducer';
-import {clearData} from '../../redux/Actions/SearchApi/SearchApiActions';
+import {
+  clearData,
+  startMainLoading,
+} from '../../redux/Actions/SearchApi/SearchApiActions';
 
 class HomeScreen extends Component {
   constructor(props) {
@@ -97,6 +100,8 @@ class HomeScreen extends Component {
   };
 
   componentDidMount = async () => {
+    this.props.clearData();
+    this.props.startMainLoading();
     this.props.fetchData(this.state.searchText, '1', 1);
   };
 
@@ -122,6 +127,14 @@ class HomeScreen extends Component {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  onsearchTextChange = (text) => {
+    this.props.clearData();
+    this.props.startMainLoading();
+    this.setState({searchText: text}, () => {
+      this.loadData();
+    });
   };
 
   render() {
@@ -165,9 +178,7 @@ class HomeScreen extends Component {
             <TextInput
               style={styles.TextInput}
               onChangeText={(text) => {
-                this.setState({searchText: text}, () => {
-                  this.loadData();
-                });
+                this.onsearchTextChange(text);
               }}
               placeholder="Search here"></TextInput>
           </View>
@@ -213,7 +224,7 @@ class HomeScreen extends Component {
               </TouchableOpacity>
             )}></FlatList>
         )}
-        {this.props.fetchedData.length == 0 && this.props.loading == true && (
+        {this.props.fetchedData.length == 0 && this.props.mainLoading == true && (
           <View style={styles.activity}>
             <ActivityIndicator size="small" color="black"></ActivityIndicator>
           </View>
@@ -225,7 +236,7 @@ class HomeScreen extends Component {
 
 const mapStateToProps = (state) => {
   console.log(
-    'STATE \n \n \n \n ' + JSON.stringify(state.searchReducer.fetchedData),
+    'STATE \n \n \n \n ' + JSON.stringify(state.searchReducer.mainLoading),
   );
 
   return {
@@ -234,6 +245,7 @@ const mapStateToProps = (state) => {
     logincode: state.userReducer.from,
     fetchedData: state.searchReducer.fetchedData,
     loading: state.searchReducer.loading,
+    mainLoading: state.searchReducer.mainLoading,
   };
 };
 
@@ -247,6 +259,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     clearData: () => {
       dispatch(clearData());
+    },
+    startMainLoading: () => {
+      dispatch(startMainLoading());
     },
   };
 };

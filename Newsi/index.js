@@ -2,7 +2,7 @@
  * @format
  */
 
-import {AppRegistry, View} from 'react-native';
+import {ActivityIndicator, AppRegistry, View} from 'react-native';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-redux';
@@ -23,7 +23,9 @@ const App = () => {
               flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
-            }}></View>
+            }}>
+            <ActivityIndicator></ActivityIndicator>
+          </View>
         }
         persistor={persistor}>
         <NavigationContainer>

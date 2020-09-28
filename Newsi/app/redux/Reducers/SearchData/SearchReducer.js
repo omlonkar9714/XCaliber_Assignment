@@ -7,11 +7,16 @@ import {
   STOP_LOADING,
   START_LOADING,
   CLEAR_DATA,
+  startMainLoading,
+  stopMainLoading,
+  START_MAIN_LOADING,
+  STOP_MAIN_LOADING,
 } from '../../Actions/SearchApi/SearchApiActions';
 
 const initialState = {
   fetchedData: [],
   loading: false,
+  mainLoading: false,
 };
 
 export const fetchData = (searchText, PageNumber, addcode) => async (
@@ -26,6 +31,7 @@ export const fetchData = (searchText, PageNumber, addcode) => async (
   if (result.items.length > 0) {
     dispatch(setData(result.items, addcode));
     dispatch(stopLoading());
+    dispatch(stopMainLoading());
   }
 };
 
@@ -53,11 +59,23 @@ const searchReducer = (state = initialState, action) => {
         loading: false,
       };
 
+    case START_MAIN_LOADING:
+      return {
+        ...state,
+        mainLoading: true,
+      };
+    case STOP_MAIN_LOADING:
+      return {
+        ...state,
+        mainLoading: false,
+      };
+
     case CLEAR_DATA:
       return {
         ...state,
         fetchedData: [],
         loading: false,
+        mainLoading: false,
       };
 
     default:
