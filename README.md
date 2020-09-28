@@ -7,10 +7,11 @@ App details as per requirement -
 
 1.Application logo
 --
+Basic logo for application round and square shape for android.
 
 2.Spalsh screen
 --
-2.1 Splash screen for android all screens supported
+2.1 Splash screen with splash icon for android.
 
 
 3.Login screen
