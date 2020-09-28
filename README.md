@@ -49,5 +49,5 @@ App details as per requirement -
 5.Responsive UI design
 --------------
 
-Responsive  ui for different size screens.
+Responsive  ui for different screen size .
 
