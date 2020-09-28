@@ -2,9 +2,9 @@
 XCaliber assignment
 
 App details - 
-1. Application logo
+1 Application logo
 
-2. Spalsh screen
+2 Spalsh screen
 
 3 Login screen
 ---------------
@@ -14,7 +14,7 @@ App details -
 3.4 Persisting login session 
 ---------------
 
-4. Home screen 
+4 Home screen 
 --------------
 4.1 Default search for  'welcome' word with given api
 4.2 User can search for the datadynamically
