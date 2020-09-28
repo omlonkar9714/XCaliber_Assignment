@@ -14,13 +14,13 @@ App details as per requirement -
 =
 
 3.1 Dummey login (Any username and any passowrd )
----
+
 3.2 Facebook login (FBSDK integration )
----
+
 3.3 Google login (sign in with google )
----
+
 3.4 Persisting login session 
---
+
 
 4.Home screen 
 =
