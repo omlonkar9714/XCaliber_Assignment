@@ -24,4 +24,5 @@ App details -
 4.6 More data fetched on reaching end to the list.
 4.7 Loader view for empty list and fetching
 4.8 Loader view at end of list when fetching more data.
-4.9 On item click in list , detailed basic information about pressed item is shown    
+4.9 On item click in list , detailed basic information about pressed item is shown 
+
