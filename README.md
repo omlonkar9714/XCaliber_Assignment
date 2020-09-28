@@ -31,7 +31,7 @@ App details as per requirement -
 --
 4.3 User picture (facebook profile pic and google account image shown if dummye login static user image)
 --
-4.4 Logout button (in fc login case , fb logout button otherwise static logout button show)
+4.4 Logout button (in fb login case , fb logout button otherwise static logout button show)
 --
 4.5 Fetched data shown in list.
 --
