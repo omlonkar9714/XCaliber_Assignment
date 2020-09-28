@@ -2,9 +2,12 @@
 XCaliber assignment
 
 App details - 
+
 1 Application logo
+------------------
 
 2 Spalsh screen
+---------------
 
 3 Login screen
 ---------------
@@ -12,7 +15,7 @@ App details -
 3.2 Facebook login (FBSDK integration )
 3.3 Google login (sign in with google )
 3.4 Persisting login session 
----------------
+
 
 4 Home screen 
 --------------
